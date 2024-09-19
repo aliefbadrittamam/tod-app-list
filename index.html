@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">TASK MANAGER <br><h2>(2022520033)</h2></h1>
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="input-group mb-3">
+                    <input type="text" id="taskInput" class="form-control" placeholder="Enter a new task">
+                    <button class="btn btn-primary" type="button" onclick="addTask()">Add Task</button>
+                </div>
+                <div class="mb-3 text-end">
+                    <span id="taskCount" class="badge bg-secondary">Total Tasks: 0</span>
+                </div>
+                <ul id="taskList" class="list-group">
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let taskCount = 0;
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            renderTasks();
+            updateTaskCount();
+        });
+
+        function loadTasks() {
+            const storedTasks = localStorage.getItem('tasks');
+            if (storedTasks) {
+                tasks = JSON.parse(storedTasks);
+                taskCount = tasks.length;
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function updateTaskCount() {
+            const taskCountElement = document.getElementById('taskCount');
+            taskCountElement.textContent = `Total Tasks: ${taskCount}`;
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = createTaskElement(task, index);
+                taskList.appendChild(li);
+            });
+        }
+
+        function createTaskElement(task, index) {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            
+            const taskText = document.createElement('span');
+            taskText.textContent = task;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-danger btn-sm';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.onclick = function() {
+                deleteTask(index);
+            };
+
+            li.appendChild(taskText);
+            li.appendChild(deleteBtn);
+            return li;
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            if (taskInput.value.trim() !== '') {
+                tasks.push(taskInput.value);
+                taskCount++;
+                saveTasks();
+                renderTasks();
+                updateTaskCount();
+                taskInput.value = '';
+            }
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            taskCount--;
+            saveTasks();
+            renderTasks();
+            updateTaskCount();
+        }
+
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+    </script>
+</body>
+</html>
